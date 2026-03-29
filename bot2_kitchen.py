@@ -6,6 +6,7 @@ from aiogram import Bot
 from dotenv import load_dotenv
 import os
 import time
+from datetime import datetime
 
 load_dotenv()
 
@@ -29,6 +30,8 @@ async def process_orders():
     while True:
         orders_batch = []
 
+        print(f"🔍 Перевірка черги... {datetime.now().strftime('%H:%M:%S')}")
+
         # Fetch all orders
         while True:
             method_frame, header_frame, body = channel.basic_get(queue='orders')
@@ -50,6 +53,12 @@ async def process_orders():
                 await bot.send_message(chat_id=user, text=message)
                 channel.basic_ack(tag)
 
+        if orders_batch:
+            print(f"📦 Знайдено замовлень: {len(orders_batch)}")
+        else:
+            print("📭 Черга порожня")
+
+        print("⏳ Сплю 15 секунд...")
         await asyncio.sleep(15)
 
 async def main():
